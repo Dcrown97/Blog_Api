@@ -6,12 +6,12 @@ AltSchool Backend Nodejs Blogging Api
 
 ## Tasks
 
-- [ ] A user should have the following required attributes and any other attributes you wish to add:
+- [x] A user should have the following required attributes and any other attributes you wish to add:
   - first_name,
   - last_name,
   - email and 
   - password
-- [ ] A user should be able to sign up and sign in into the blog app
+- [x] A user should be able to sign up and sign in into the blog app
 
 - [ ] Use JWT as authentication strategy and expire the token after 1 hour
 
