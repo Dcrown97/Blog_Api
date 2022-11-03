@@ -9,8 +9,8 @@ passport.use(
     new jwtStrategy(
         {
             secretOrKey: process.env.JWT_SECRET,
-            jwtFromRequest: extractJwt.fromUrlQueryParameter('secret_token')
-            // jwtFromRequest: extractJwt.fromAuthHeaderAsBearerToken() // Use this if you are using Bearer token
+            // jwtFromRequest: extractJwt.fromUrlQueryParameter('secret_token')
+            jwtFromRequest: extractJwt.fromAuthHeaderAsBearerToken() // Use this if you are using Bearer token
         },
         async (token, done) => {
             try {

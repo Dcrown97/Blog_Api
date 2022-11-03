@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const authRoute = require('./routes/authRoute');
+const blogRoute = require('./routes/blogRoutes');
 const { connectToDb } = require('./database/db')
 
 require("./authentication/auth") // Signup and login authentication middleware
@@ -20,7 +21,7 @@ connectToDb();
 app.use(express.json());
 
 //protected article routes user authentication signin and login route
-// app.use('/orders', passport.authenticate('jwt', { session: false }), OrderRouter)
+app.use('/blogs', passport.authenticate('jwt', { session: false }), blogRoute);
 app.use('/', authRoute);
 
 //Diplay Homepage

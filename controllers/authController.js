@@ -43,12 +43,13 @@ exports.login = (req, res, { err, user, info }) => {
             if (error) return res.status(400).json(error)
 
             const body = { _id: user._id, email: user.email };
-            //You store the id and email in the payload of the JWT. 
+            //You store the id and email in the payload of the JWT.
             // You then sign the token with a secret or key (JWT_SECRET), and send back the token to the user.
             // DO NOT STORE PASSWORDS IN THE JWT!
-            const token = jwt.sign({ user: body }, process.env.JWT_SECRET || 'secret_token');
+            const tokenValidity = '1h'
+            const token = jwt.sign({ user: body }, process.env.JWT_SECRET || 'secret_token', { expiresIn: tokenValidity });
 
-            return res.status(200).json({ token });
+            return res.status(200).json({ token, email: user.email, first_name: user.first_name });
         }
     );
 }
