@@ -1,10 +1,9 @@
 const express = require('express');
-const passport = require('passport');
 const authRoute = require('./routes/authRoute');
 const blogRoute = require('./routes/blogRoutes');
 const { connectToDb } = require('./database/db')
 
-require("./authentication/auth") // Signup and login authentication middleware
+require("./authentication/auth") // jwt authorization middleware
 require('dotenv').config();
 
 const app = express()
@@ -14,14 +13,11 @@ const PORT = process.env.PORT || 3000
 //connect to databse
 connectToDb();
 
-//register user with passport
-// require('');
-
 //middleware
 app.use(express.json());
 
-//protected article routes user authentication signin and login route
-app.use('/blogs', passport.authenticate('jwt', { session: false }), blogRoute);
+//routes
+app.use('/blogs', blogRoute);
 app.use('/', authRoute);
 
 //Diplay Homepage

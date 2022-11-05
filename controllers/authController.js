@@ -3,6 +3,7 @@ const UserModel = require('../model/userModel');
 
 require('dotenv').config();
 
+// Create and save the user into the database and send the user information
 exports.signup = async (req, res) => {
     try {
         //check if the user exist before
@@ -11,7 +12,6 @@ exports.signup = async (req, res) => {
             return res.status(400).send('User Already Exist');
         }
         user = new UserModel();
-        console.log(user)
         user.first_name = req.body.first_name
         user.last_name = req.body.last_name
         user.email = req.body.email
@@ -26,30 +26,35 @@ exports.signup = async (req, res) => {
             user: user
         })
     } catch (err) {
-        console.log(err);
         return res.status(400).send(err.message)
     }
 }
 
-exports.login = (req, res, { err, user, info }) => {
+// Authenticate the user with the email and password
+// then  login the user and return the token
+exports.login = async (req, res) => {
+    try {
+        const userEmail = req.body.email
+        const userPassword = req.body.password
 
-    if (!user) {
-        return res.json({ message: 'Email or password is incorrect first' })
-    }   
+        const user = await UserModel.findOne({ email: userEmail });
 
-    // req.login is provided by passport
-    req.login(user, { session: false },
-        async (error) => {
-            if (error) return res.status(400).json(error)
-
-            const body = { _id: user._id, email: user.email };
-            //You store the id and email in the payload of the JWT.
-            // You then sign the token with a secret or key (JWT_SECRET), and send back the token to the user.
-            // DO NOT STORE PASSWORDS IN THE JWT!
-            const tokenValidity = '1h'
-            const token = jwt.sign({ user: body }, process.env.JWT_SECRET || 'secret_token', { expiresIn: tokenValidity });
-
-            return res.status(200).json({ token, email: user.email, first_name: user.first_name });
+        if (!user) {
+            return res.status(400).send({  message: 'User not found' });
         }
-    );
+
+        const validate = await user.isValidPassword(userPassword);
+
+        if (!validate) {
+            return res.status(400).send({ message: 'Wrong Password' });
+        }
+        //Store the user in the payload of the JWT.
+        // You then sign the token with a secrete_key (JWT_SECRET), and send back the token to the user.
+        const tokenExpires = '1h'
+        const token = jwt.sign({ user }, process.env.JWT_SECRET || 'secret_token', { expiresIn: tokenExpires });
+
+        return res.status(200).send({ user, token, message: 'Logged in Successfully' });
+    } catch (error) {
+        return done(error);
+    }
 }
