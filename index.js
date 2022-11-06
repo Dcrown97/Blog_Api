@@ -17,7 +17,7 @@ connectToDb();
 app.use(express.json());
 
 //routes
-app.use('/blogs', blogRoute);
+app.use('/api/blog', blogRoute);
 app.use('/', authRoute);
 
 //Diplay Homepage

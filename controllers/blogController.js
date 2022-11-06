@@ -1,5 +1,6 @@
 const Blog = require('../model/blogModel');
 const { reading_time } = require('../algorithms/reading_time')
+const { sort } = require('../algorithms/sort')
 
 
 exports.createBlog = async (req, res) => {
@@ -24,7 +25,7 @@ exports.createBlog = async (req, res) => {
         const newblog = await BlogObj.save()
         // return response
         return res.status(200).json({
-            status: true,
+            message: "Blog created successfully",
             data: newblog,
         })
 
@@ -37,7 +38,7 @@ exports.createBlog = async (req, res) => {
 exports.getPublishedBlogs = async (req, res) => {
     try {
         //query request object
-        let { author, page, title, tags, } = req.query;
+        let { author, page, title, tags, order_by } = req.query;
         //default limit to 20per page
         const limit = 20;
         page = page ? page : 1;
@@ -52,12 +53,15 @@ exports.getPublishedBlogs = async (req, res) => {
         if (tags?.length > 0) {
             filterObj.push({ tags: { $all: tags } })
         }
+        let sort_by = {};
+        sort_by[order_by] = -1
+
         // get blog that belongs filter by obj and sort
         const publishedBlogs = await Blog.find(
             {
                 $and: filterObj
             }
-        ).limit(limit).skip(+page == 1 ? 0 : (+page - 1) * limit).sort({ "createdAt": 1, "reading_time": 1, "read_count": 1 })
+        ).limit(limit).skip(+page == 1 ? 0 : (+page - 1) * limit).sort(sort_by);
         // return error
         if (!publishedBlogs) {
             return res.status(400).json({ status: false, blog: publishedBlogs })
@@ -74,7 +78,7 @@ exports.getSinglePublishedBlog = async (req, res) => {
     try {
         //Get a single published blog
         const id = req.params.id
-        const getSingleBlog = await Blog.findOne({ _id: id, state: 'published' }).populate(['author'])
+        const getSingleBlog = await Blog.findOne({ _id: id, state: 'published' }).populate({ path: 'author', select: ['first_name', 'last_name', 'email'] })
         await Blog.updateOne({ _id: id }, { read_count: getSingleBlog.read_count + 1 })
         if (!getSingleBlog) {
             return res.status(404).send('Blog not found');
@@ -97,7 +101,7 @@ exports.getBlogByAuthor = async (req, res) => {
         // query the request object
         let { state, page } = req.query;
         // paginate
-        const limit = 1;
+        const limit = 5;
         page = page ? page : 1
         // get blog that belongs to a author
         const blog = await Blog.find(state ? {
@@ -128,23 +132,24 @@ exports.editBlog = async (req, res) => {
         if (!checkId) {
             return res.status(400).send('Blog not found');
         }
-        // check if the new title does not equal to the previous title
-        if (checkTitle && checkId.title !== title) {
-            return res.status(400).send('Title already exist');
-        }
+
         // check if user is the owner of the blog
         if (checkId.author.toString() !== user._id.toString()) {
             return res.status(400).send('Not authorized to update blog');
         }
+        // check if the new title does not equal to the previous title
+        if (checkTitle && checkId.title !== title) {
+            return res.status(400).send('Title already exist');
+        }
 
         //update blog
-        await Blog.updateOne({ id }, {
+        await Blog.updateOne({ _id: id }, {
             title: title ?? checkId.title,
             state: state ?? checkId.state,
             description: description ?? checkId.description,
             tags: tags ?? checkId.tags,
             body: body ?? checkId.body,
-            reading_time: reading_time(body) ?? checkId.reading_time(body)
+            reading_time: reading_time(body) ?? checkId.reading_time
         });
 
         // fetch and return updated blog
@@ -152,7 +157,7 @@ exports.editBlog = async (req, res) => {
 
         // return response
         return res.status(200).json({
-            status: true,
+            message: "Blog Updated Successfully",
             data: updatedBlog,
         })
 
