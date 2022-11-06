@@ -56,6 +56,14 @@ AltSchool Backend Nodejs Blogging Api
 </details>
 
 <details>
+<summary> For online testing with postman </summary>
+
+Visit https://blog-api-uavh.onrender.com and add `/`any of the api routes in the route readme file that you wish to call.
+
+</details>
+
+
+<details>
 <summary> Development </summary>
 
 Run `npm install` to install dependencies used, then run `node index.js` to start the development server on `http://localhost:8000
