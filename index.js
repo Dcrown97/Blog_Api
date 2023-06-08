@@ -1,10 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const authRoute = require('./routes/authRoute');
 const blogRoute = require('./routes/blogRoutes');
 const { connectToDb } = require('./database/db')
 
 require("./authentication/auth") // jwt authorization middleware
-require('dotenv').config();
 
 const app = express()
 
@@ -33,5 +33,6 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(PORT, () => {
+    
     console.log(`Server Started on PORT: http://localhost:${PORT}`)
 })

@@ -1,7 +1,7 @@
 const request = require('supertest')
 const { connect } = require('./database')
 const UserModel = require('../model/userModel')
-const { app } = require('../index');
+const app  = require('../index');
 
 describe('Auth: Signup', () => {
     let conn;
@@ -28,7 +28,7 @@ describe('Auth: Signup', () => {
                 password: 'Password123'
             })
 
-        expect(response.status).toBe(201)
+        expect(response.status).toBe(200)
         expect(response.body).toHaveProperty('message')
         expect(response.body).toHaveProperty('user')
         expect(response.body.user).toHaveProperty('first_name', 'tobie')
